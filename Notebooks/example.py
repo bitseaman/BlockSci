@@ -1,39 +1,34 @@
 import blocksci
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-chain = blocksci.Blockchain("../zcash-devdata")
-=======
-chain = blocksci.Blockchain("../../../zcash-testdata") #the directory of your parsed zcash data
->>>>>>> parent of 6f20902... Update example.py
-=======
-chain = blocksci.Blockchain("../../../zcash-testdata")
->>>>>>> parent of 03a5f45... Update example.py
-=======
-chain = blocksci.Blockchain("../zcash-devdata")
->>>>>>> parent of ddd7bdb... Update example.py
 
-in_z_addresses = 0
-num_of_txes = 0
-num_of_jstxes = 0
-num_of_ins = 0
-num_of_outs = 0
+chain = blocksci.Blockchain("../zcash-data") #Your folder, where the parsed Zcash blockchain data is found
 
+sapling = 0
+sapling_hidden = 0
+sapling_revealed = 0
+sapling_spends = 0
+sapling_outputs = 0
+
+sprout = 0
+sprout_hidden = 0
+sprout_revealed = 0
+
+
+difficulties = []
 
 for blk in chain:
+	difficulties.append(blk.difficulty)
 	for tx in blk:
-		num_of_txes += 1
-		if tx.is_joinsplit:
-			num_of_jstxes += 1
-			in_z_addresses += tx.sum_vpubold - tx.sum_vpubnew
-		for ins in tx.ins:
-			num_of_ins += 1
-		for outs in tx.outs:
-			num_of_outs += 1
-
-print('Number of transactions: ' + str(num_of_txes))
-print('Of that hidden transactions: ' + str(num_of_jstxes))
-print('Number of transaction inputs: ' + str(num_of_ins))
-print('Number of transaction outputs: ' + str(num_of_outs))
-print('amount of Zatoshis in Z addresses: ' + str(in_z_addresses))
+		if tx.is_shielded:
+			if tx.is_sproutshielded:
+				sprout += 1
+				sprout_hidden += tx.sum_vpubold
+				sprout_revealed += tx.sum_vpubnew
+			if tx.is_saplingshielded:
+				sapling += 1
+				sapling_spends += tx.sspend_count #number of sapling spend notes
+				sapling_outputs += tx.soutput_count #number of sapling output notes
+				if tx.value_balance < 0:
+					sapling_hidden += abs(tx.value_balance)
+				else:
+					sapling_revealed += tx.value_balance
