@@ -1,4 +1,4 @@
-This is a modified version of the original BlockSci code that is fully compatible with Zcash. Updated to full support of Sapling shielded Transactions. Only works through the RPC interface mode of BlockSci. An example Python code with all the new features can be found in the Examples folder. The rest of this file is the same as the original.
+This is a modified version of the original BlockSci code that is fully compatible with Zcash. Updated to full support of Sapling shielded Transactions. Only works through the RPC interface mode of BlockSci. An example Python code with all the new features can be found in the Notebook folder. The rest of this file is the same as the original.
 
 
 
