@@ -1,27 +1,39 @@
 import blocksci
 
-chain = blocksci.Blockchain("../zcash-data") # the directory of your parsed zcash data
+chain = blocksci.Blockchain("../zcash-data") # Your folder, where the parsed Zcash blockchain data is found
 
-in_z_addresses = 0
-num_of_txes = 0
-num_of_jstxes = 0
-num_of_ins = 0
-num_of_outs = 0
+sapling = 0
+sapling_hidden = 0
+sapling_revealed = 0
+sapling_spends = 0
+sapling_outputs = 0
+
+sprout = 0
+sprout_hidden = 0
+sprout_revealed = 0
 
 
-for blk in chain:
+difficulties = []
+
+for blk in chain[:450000]:
+	difficulties.append(blk.difficulty) # Difficulty of a block
 	for tx in blk:
-		num_of_txes += 1
-		if tx.is_joinsplit:
-			num_of_jstxes += 1
-			in_z_addresses += tx.sum_vpubold - tx.sum_vpubnew
-		for ins in tx.ins:
-			num_of_ins += 1
-		for outs in tx.outs:
-			num_of_outs += 1
+		if tx.is_shielded:
+			if tx.is_sproutshielded:
+				sprout += 1
+				sprout_hidden += tx.sum_vpubold
+				sprout_revealed += tx.sum_vpubnew
+			if tx.is_saplingshielded:
+				sapling += 1
+				sapling_spends += tx.sspend_count # Number of shielded spends in the transaction
+				sapling_outputs += tx.soutput_count # Number of shielded outputs in the transaction
+				if tx.value_balance < 0:
+					sapling_hidden += abs(tx.value_balance)
+				else:
+					sapling_revealed += tx.value_balance
 
-print('Number of transactions: ' + str(num_of_txes))
-print('Of that hidden transactions: ' + str(num_of_jstxes))
-print('Number of transaction inputs: ' + str(num_of_ins))
-print('Number of transaction outputs: ' + str(num_of_outs))
-print('amount of Zatoshis in Z addresses: ' + str(in_z_addresses))
+
+print("ZEC in sprout addresses:")
+print((sprout_hidden - sprout_revealed) / 100000000) # Values are stored in Zatoshis
+print("ZEC in sapling addresses:")
+print((sapling_hidden - sapling_revealed) / 100000000)
